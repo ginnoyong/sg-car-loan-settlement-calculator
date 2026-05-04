@@ -20,7 +20,9 @@ h1{font-family:var(--mono);font-size:16px;font-weight:500;letter-spacing:.05em;c
 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:.75rem}
 @media(max-width:640px){.grid2{grid-template-columns:1fr}}
 .card{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:1rem}
+.card.cash-card{border-color:rgba(251,191,36,.3);background:rgba(251,191,36,.04)}
 .card-title{font-family:var(--mono);font-size:10px;font-weight:500;letter-spacing:.1em;color:var(--muted);text-transform:uppercase;margin-bottom:.75rem}
+.card-title.cash{color:#fbbf24}
 label{display:block;font-size:11px;color:var(--muted);margin-bottom:4px;margin-top:.6rem}
 label:first-of-type{margin-top:0}
 input[type=number],select{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:4px;padding:6px 8px;color:var(--text);font-family:var(--mono);font-size:12px;outline:none;transition:border-color .15s}
@@ -35,6 +37,14 @@ select option{background:var(--surface2)}
 .toggle-group label{flex:1;text-align:center;padding:6px 8px;border:1px solid var(--border);border-radius:4px;font-family:var(--mono);font-size:11px;color:var(--muted);cursor:pointer;transition:all .15s;margin:0}
 .toggle-group input[type=radio]:checked+label{border-color:var(--accent2);color:var(--accent2);background:rgba(96,165,250,.1)}
 .toggle-group label:hover{border-color:var(--accent2);color:var(--text)}
+.cash-row{display:flex;justify-content:space-between;align-items:baseline;padding:.4rem 0;border-bottom:1px solid rgba(42,48,80,.4)}
+.cash-row:last-child{border-bottom:none}
+.cash-row.total{border-top:1px solid rgba(251,191,36,.3);border-bottom:none;margin-top:.25rem;padding-top:.6rem}
+.cash-row-label{font-size:11px;color:var(--muted);font-family:var(--mono)}
+.cash-row-val{font-family:var(--mono);font-size:13px;color:var(--text)}
+.cash-row.total .cash-row-label{color:#fbbf24;font-weight:500}
+.cash-row.total .cash-row-val{color:#fbbf24;font-size:15px;font-weight:500}
+.cash-vs{margin-top:.75rem;padding:.6rem .75rem;background:var(--surface2);border-radius:6px;font-family:var(--mono);font-size:11px;color:var(--muted)}
 .scorecard{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:.6rem;margin:.75rem 0}
 .metric{background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:.75rem}
 .metric-label{font-size:10px;color:var(--muted);font-family:var(--mono);letter-spacing:.05em;text-transform:uppercase;line-height:1.4}
@@ -42,7 +52,7 @@ select option{background:var(--surface2)}
 .green{color:#4ade80}.blue{color:#60a5fa}.warn{color:#fbbf24}.red{color:#f87171}
 .banner{border-radius:8px;padding:.75rem 1rem;margin:.75rem 0;font-family:var(--mono);font-size:12px}
 .banner.optimal{background:rgba(74,222,128,.07);border:1px solid rgba(74,222,128,.25)}
-.banner.cash{background:rgba(251,191,36,.07);border:1px solid rgba(251,191,36,.25)}
+.banner.cash-opt{background:rgba(251,191,36,.07);border:1px solid rgba(251,191,36,.25)}
 .banner-title{font-size:10px;font-weight:500;letter-spacing:.08em;text-transform:uppercase;margin-bottom:4px}
 .btn-row{display:flex;gap:.6rem;margin-top:.75rem;flex-wrap:wrap;align-items:center}
 .btn{background:transparent;border:1px solid;font-family:var(--mono);font-size:11px;padding:7px 16px;border-radius:4px;cursor:pointer;letter-spacing:.05em;transition:background .15s}
@@ -54,7 +64,7 @@ select option{background:var(--surface2)}
 .section-gap{margin-top:.75rem}
 .divider{border:none;border-top:1px solid var(--border);margin:1rem 0}
 .table-wrap{overflow-x:auto;margin-top:.5rem;border:1px solid var(--border);border-radius:8px;max-height:500px;overflow-y:auto}
-table{width:100%;border-collapse:collapse;font-family:var(--mono);font-size:11px;min-width:1050px}
+table{width:100%;border-collapse:collapse;font-family:var(--mono);font-size:11px;min-width:1150px}
 thead{position:sticky;top:0;z-index:2}
 th{background:#1a1f30;color:var(--muted);font-weight:500;padding:7px 8px;text-align:right;border-bottom:1px solid var(--border);font-size:10px;text-transform:uppercase;white-space:nowrap;letter-spacing:.03em}
 th:first-child{text-align:left}
@@ -63,7 +73,6 @@ td{padding:6px 8px;text-align:right;border-bottom:1px solid rgba(42,48,80,.4);co
 td:first-child{text-align:left;color:var(--muted)}
 td.gs{border-left:1px solid rgba(42,48,80,.6)}
 tr:nth-child(even) td{background:rgba(30,35,53,.35)}
-tr.row-cash td{background:rgba(251,191,36,.1)!important;color:#fbbf24!important;font-weight:500}
 tr.row-settle td{background:rgba(74,222,128,.1)!important;color:#4ade80!important;font-weight:500}
 tr.row-optimal td{background:rgba(96,165,250,.1)!important;color:#60a5fa!important;font-weight:500}
 tr.row-both td{background:rgba(251,191,36,.1)!important;color:#fbbf24!important;font-weight:500}
@@ -83,12 +92,12 @@ tr.row-both td{background:rgba(251,191,36,.1)!important;color:#fbbf24!important;
 <body>
 <div class="wrap">
 <h1>// SG CAR LOAN SETTLEMENT CALCULATOR <span class="tag">SG PRACTICE</span></h1>
-<p class="subtitle">Singapore hire-purchase · Rule of 78 · 20% admin clawback · 1–1.5% early settlement fee · Month 0 = cash purchase</p>
+<p class="subtitle">Singapore hire-purchase · Rule of 78 · 20% admin clawback · 1–1.5% early settlement fee</p>
 
 <div class="grid2">
   <div class="card">
     <div class="card-title">Loan Parameters</div>
-    <label>Car price (after all discounts) $</label>
+    <label>Car price (after all discounts, incl. finance rebate) $</label>
     <input type="number" id="carPrice" value="177888" step="100">
     <label>Down payment $</label>
     <input type="number" id="downPayment" value="73955" step="100">
@@ -113,13 +122,10 @@ tr.row-both td{background:rgba(251,191,36,.1)!important;color:#fbbf24!important;
       <option value="reducing">Reducing balance (EIR)</option>
     </select>
     <div class="sn" id="structNote"></div>
-
     <label style="margin-top:.85rem">Admin clawback on interest rebate % <span style="color:#60a5fa;font-size:10px">(SG standard: 20%)</span></label>
     <input type="number" id="adminClawback" value="20" step="1" min="0" max="100">
-
     <label>Early settlement fee % <span style="color:#60a5fa;font-size:10px">(SG standard: 1–1.5%)</span></label>
     <input type="number" id="esFee" value="1.5" step="0.1" min="0" max="10">
-
     <label>Early settlement fee applied to</label>
     <div class="toggle-group">
       <input type="radio" name="feeBase" id="feeRemaining" value="remaining" checked>
@@ -127,56 +133,73 @@ tr.row-both td{background:rgba(251,191,36,.1)!important;color:#fbbf24!important;
       <input type="radio" name="feeBase" id="feeOriginal" value="original">
       <label for="feeOriginal">Original loan amount</label>
     </div>
-
     <div class="check-row" style="margin-top:.85rem">
       <input type="checkbox" id="clawback" checked>
       <span>Finance rebate clawed back if settled early</span>
     </div>
-    <label>Finance rebate clawback amount $ <span style="color:#60a5fa;font-size:10px">(0 = no rebate)</span></label>
+    <label>Finance rebate amount $ <span style="color:#60a5fa;font-size:10px">(0 = no rebate for this car)</span></label>
     <input type="number" id="clawbackAmt" value="5000" step="100" min="0">
+    <p class="note" style="margin-top:.4rem">This rebate is already deducted in the car price above. It is added back for cash purchase (never given) and clawed back on early settlement.</p>
   </div>
+</div>
+
+<!-- Cash Purchase Card — always visible -->
+<div class="card cash-card section-gap">
+  <div class="card-title cash">Cash purchase scenario <span style="font-size:9px;color:var(--muted);text-transform:none;letter-spacing:0">(no loan taken)</span></div>
+  <div class="cash-row">
+    <span class="cash-row-label">Car price (post-rebate, as entered)</span>
+    <span class="cash-row-val" id="cashCarPrice">—</span>
+  </div>
+  <div class="cash-row" id="cashRebateRow">
+    <span class="cash-row-label">Finance rebate added back <span style="font-size:9px">(never given — no loan taken)</span></span>
+    <span class="cash-row-val red" id="cashRebateVal">—</span>
+  </div>
+  <div class="cash-row total">
+    <span class="cash-row-label">Total cash cost</span>
+    <span class="cash-row-val" id="cashTotal">—</span>
+  </div>
+  <div class="cash-vs" id="cashVs"></div>
 </div>
 
 <div class="card section-gap">
   <div class="card-title">How SG early settlement works</div>
   <div class="fbox">
-    <span>Month 0 (cash)</span> = no loan · total car cost = car price · no interest, no fees, no clawback<br>
+    <span>Cash purchase</span> = car price + finance rebate (rebate was never given since no loan taken)<br>
     <span>Step 1 — Gross interest rebate</span> = remaining interest via Rule of 78 tail weights<br>
     <span>Step 2 — Admin clawback</span> = gross interest rebate × admin clawback % &nbsp;(bank keeps this)<br>
     <span>Step 3 — Net interest rebate</span> = gross interest rebate × (1 − admin clawback %)<br>
     <span>Step 4 — Early settlement fee</span> = fee % × remaining principal (or original loan amount)<br>
-    <span>Step 5 — Settlement payoff</span> = remaining principal + admin clawback amount + early settlement fee + finance clawback<br>
-    <span>Total car cost</span> = down payment + cumulative instalments paid + settlement payoff<br>
-    <span style="color:var(--muted)">            = down payment + loan principal + cumulative interest paid + admin clawback + ES fee + finance clawback</span>
+    <span>Step 5 — Settlement payoff</span> = remaining principal + admin clawback amount + early settlement fee + finance rebate clawback<br>
+    <span>Total car cost (loan)</span> = down payment + loan principal + cumulative interest paid + admin clawback + ES fee + finance rebate clawback
   </div>
 </div>
 
 <div class="card section-gap">
-  <div class="card-title">Find optimal &amp; set settlement month</div>
+  <div class="card-title">Loan settlement analysis</div>
   <div class="btn-row">
     <button class="btn btn-green" onclick="findOptimal()">Find optimal settlement month ↗</button>
   </div>
   <div id="optimalBanner" class="banner optimal" style="display:none"></div>
   <hr class="divider">
   <div class="settle-row">
-    <label>Settle at end of month: <span style="color:#60a5fa;font-size:10px">(0 = cash purchase)</span></label>
-    <input type="number" id="settleMonth" value="84" min="0">
+    <label>Settle at end of month:</label>
+    <input type="number" id="settleMonth" value="84" min="1">
     <button class="btn btn-blue" onclick="recalc()">Recalculate ↗</button>
   </div>
   <p class="note" id="settleNote" style="margin-top:.5rem"></p>
 </div>
 
 <div class="card section-gap" id="scorecardCard" style="display:none">
-  <div class="card-title">Settlement scorecard — <span id="scorecardMonth"></span></div>
+  <div class="card-title">Settlement scorecard — month <span id="scorecardMonth"></span></div>
   <div class="scorecard" id="scorecard"></div>
 </div>
 
 <div class="card section-gap" id="tableCard" style="display:none">
   <div class="card-title">Monthly breakdown</div>
   <div class="legend">
-    <div class="legend-item"><div class="dot dot-w"></div>Cash purchase / month 0</div>
     <div class="legend-item"><div class="dot dot-g"></div>Selected settlement month (◆)</div>
     <div class="legend-item"><div class="dot dot-b"></div>Optimal month (●)</div>
+    <div class="legend-item"><div class="dot dot-w"></div>Both coincide (★)</div>
   </div>
   <div class="table-wrap">
     <table>
@@ -186,19 +209,19 @@ tr.row-both td{background:rgba(251,191,36,.1)!important;color:#fbbf24!important;
           <th colspan="2" class="grp">— instalment —</th>
           <th colspan="2" class="grp">— cumulative —</th>
           <th colspan="2" class="grp">— remaining —</th>
-          <th colspan="5" class="grp">— if settle this month —</th>
+          <th colspan="6" class="grp">— if settle this month —</th>
         </tr>
         <tr>
           <th class="gs">Interest</th><th>Principal</th>
           <th class="gs">Cum. interest</th><th>Cum. principal</th>
           <th class="gs">Rem. interest</th><th>Rem. principal</th>
-          <th class="gs">Gross rebate</th><th>Admin clawback</th><th>Net rebate</th><th>ES fee</th><th>Total car cost</th>
+          <th class="gs">Gross rebate</th><th>Admin clawback</th><th>Net rebate</th><th>ES fee</th><th>FR clawback</th><th>Total car cost</th>
         </tr>
       </thead>
       <tbody id="tableBody"></tbody>
     </table>
   </div>
-  <p class="note">Month 0 = cash purchase (no loan). ES fee = Early Settlement fee = fee % × remaining principal. Settlement payoff = remaining principal + admin clawback + ES fee + finance clawback. Total car cost = down payment + cumulative instalments + settlement payoff. At full term all settlement costs are zero.</p>
+  <p class="note">ES fee = Early Settlement fee = fee % × remaining principal. FR clawback = Finance Rebate clawback. Applies on early settlement only — $0 at full term. Total car cost = down payment + loan principal + cumulative interest + admin clawback + ES fee + FR clawback.</p>
 </div>
 
 <div class="footer">
@@ -210,14 +233,13 @@ tr.row-both td{background:rgba(251,191,36,.1)!important;color:#fbbf24!important;
 <script>
 const $=id=>document.getElementById(id);
 let _sched=[],_optimalM=null,_settleM=null;
-let _savedDp=73955,_savedCarPrice=177888;
-let _isCashMode=false;
 
 function syncPrincipal(){
   const price=parseFloat($('carPrice').value)||0;
   const dp=parseFloat($('downPayment').value)||0;
   $('principal').value=Math.max(0,price-dp);
   updateDerived();
+  updateCashCard();
 }
 function updateDerived(){
   const P=parseFloat($('principal').value)||0,r=parseFloat($('rate').value)||0,
@@ -240,6 +262,41 @@ function updateDerived(){
     $('totalInt').value=ti.toFixed(2);
   }
 }
+function updateCashCard(){
+  const carPrice=parseFloat($('carPrice').value)||0;
+  const doClawback=$('clawback').checked;
+  const rebateAmt=Math.max(0,parseFloat($('clawbackAmt').value)||0);
+  const cashRebate=doClawback?rebateAmt:0;
+  const cashTotal=carPrice+cashRebate;
+  $('cashCarPrice').textContent=fmt(carPrice);
+  // show/hide rebate row
+  const rebateRow=$('cashRebateRow');
+  if(cashRebate>0){
+    rebateRow.style.display='flex';
+    $('cashRebateVal').textContent='+'+fmt(cashRebate);
+  } else {
+    rebateRow.style.display='none';
+  }
+  $('cashTotal').textContent=fmt(cashTotal);
+  // vs full term comparison
+  const P=parseFloat($('principal').value)||0;
+  const dp=parseFloat($('downPayment').value)||0;
+  const ti=parseFloat($('totalInt').value)||0;
+  const fullTermCost=dp+P+ti;
+  const diff=cashTotal-fullTermCost;
+  const cashVsEl=$('cashVs');
+  if(P>0&&ti>0){
+    if(diff<0){
+      cashVsEl.innerHTML=`<span style="color:#4ade80">Cash is cheaper by ${fmt(Math.abs(diff))} vs full term loan (${fmt(fullTermCost)})</span>`;
+    } else if(diff>0){
+      cashVsEl.innerHTML=`<span style="color:#f87171">Cash costs ${fmt(diff)} more than full term loan (${fmt(fullTermCost)})</span> <span style="color:var(--muted);font-size:10px">— loan rebate outweighs interest cost</span>`;
+    } else {
+      cashVsEl.innerHTML=`<span style="color:var(--muted)">Cash and full term loan cost the same</span>`;
+    }
+  } else {
+    cashVsEl.innerHTML=`<span style="color:var(--muted)">Enter loan parameters to compare vs full term</span>`;
+  }
+}
 function approxEIR(fr,n){
   if(fr===0||n===0)return 0;
   let r=(fr/100)/12*2;
@@ -250,21 +307,6 @@ function approxEIR(fr,n){
     if(Math.abs(nr-r)<1e-12)break;r=Math.max(1e-10,nr);
   }
   return r;
-}
-function enterCashMode(){
-  _savedCarPrice=parseFloat($('carPrice').value)||0;
-  _savedDp=parseFloat($('downPayment').value)||0;
-  _isCashMode=true;
-  $('downPayment').value=$('carPrice').value;
-  $('principal').value='0';
-  $('instalment').value='0.00';
-  $('totalInt').value='0.00';
-}
-function exitCashMode(){
-  _isCashMode=false;
-  $('carPrice').value=_savedCarPrice;
-  $('downPayment').value=_savedDp;
-  syncPrincipal();
 }
 function buildSchedule(P,fr,n,type){
   if(P<=0||n<=0)return[];
@@ -308,11 +350,11 @@ function getParams(){
     clawbackAmt:Math.max(0,parseFloat($('clawbackAmt').value)||0)
   };
 }
-function cashRow(p){return{m:0,ia:0,pa:0,ci:0,cp:0,rp:0,ri:0,grossRebate:0,isCash:true};}
 function calcSettle(row,p){
-  if(row.m===0) return{grossRebate:0,adminAmt:0,netRebate:0,esFee:0,cb:0,totalCost:p.carPrice};
   const isFullTerm=row.m===p.n;
-  if(isFullTerm) return{grossRebate:0,adminAmt:0,netRebate:0,esFee:0,cb:0,totalCost:p.dp+p.P+row.ci};
+  if(isFullTerm){
+    return{grossRebate:0,adminAmt:0,netRebate:0,esFee:0,cb:0,totalCost:p.dp+p.P+row.ci};
+  }
   const grossRebate=row.grossRebate||0;
   const adminAmt=grossRebate*(p.adminPct/100);
   const netRebate=grossRebate-adminAmt;
@@ -322,43 +364,33 @@ function calcSettle(row,p){
   const totalCost=p.dp+p.P+row.ci+adminAmt+esFee+cb;
   return{grossRebate,adminAmt,netRebate,esFee,cb,totalCost};
 }
-function fmt(v){return'$'+Math.round(v).toLocaleString('en-SG')}
-function getOrigParams(){
-  // always return params based on pre-cash-mode values for schedule building
-  return{
-    P:_isCashMode?Math.max(0,_savedCarPrice-_savedDp):parseFloat($('principal').value)||0,
-    dp:_isCashMode?_savedDp:parseFloat($('downPayment').value)||0,
-    carPrice:_isCashMode?_savedCarPrice:parseFloat($('carPrice').value)||0,
-    rate:parseFloat($('rate').value)||0,
-    n:parseInt($('tenure').value)||84,
-    type:$('loanType').value,
-    adminPct:parseFloat($('adminClawback').value)||20,
-    esFeeP:parseFloat($('esFee').value)||1.5,
-    feeBase:(document.querySelector('input[name=feeBase]:checked')||{value:'remaining'}).value,
-    doClawback:$('clawback').checked,
-    clawbackAmt:Math.max(0,parseFloat($('clawbackAmt').value)||0)
-  };
+function cashCost(p){
+  const rebate=p.doClawback?p.clawbackAmt:0;
+  return p.carPrice+rebate;
 }
+function fmt(v){return'$'+Math.round(v).toLocaleString('en-SG')}
 function findOptimal(){
-  if(_isCashMode)exitCashMode();
-  const p=getOrigParams();
+  const p=getParams();
   _sched=buildSchedule(p.P,p.rate,p.n,p.type);
-  const allRows=[cashRow(p),..._sched];
+  // find optimal among loan months only
   let bestM=p.n,bestCost=Infinity;
-  allRows.forEach(r=>{const c=calcSettle(r,p);if(c.totalCost<bestCost){bestCost=c.totalCost;bestM=r.m;}});
+  _sched.forEach(r=>{
+    const c=calcSettle(r,p);
+    if(c.totalCost<bestCost){bestCost=c.totalCost;bestM=r.m;}
+  });
   _optimalM=bestM;
   $('settleMonth').value=bestM;
-  if(bestM===0){enterCashMode();_settleM=0;}
-  else _settleM=bestM;
-  const fullC=calcSettle(_sched.length>0?_sched[p.n-1]:{m:p.n,ci:0,rp:0,grossRebate:0},p);
-  const cashC=calcSettle(cashRow(p),p);
+  _settleM=bestM;
+  const fullC=calcSettle(_sched[p.n-1],p);
+  const cCost=cashCost(p);
   const saving=fullC.totalCost-bestCost;
   const ob=$('optimalBanner');ob.style.display='block';
-  if(bestM===0){
-    ob.className='banner cash';
-    ob.innerHTML=`<div class="banner-title" style="color:#fbbf24">Optimal: cash purchase (month 0)</div>
-      <span style="font-size:15px;color:#fbbf24;font-weight:500">Pay in full — no loan</span><br>
-      <span style="font-size:11px;color:var(--muted)">Total car cost: ${fmt(cashC.totalCost)} &nbsp;|&nbsp; Saves ${fmt(saving)} vs full term loan (${fmt(fullC.totalCost)})</span>`;
+  // check if cash is even better
+  if(cCost<bestCost){
+    ob.className='banner cash-opt';
+    ob.innerHTML=`<div class="banner-title" style="color:#fbbf24">Note: cash purchase is cheaper than any loan scenario</div>
+      <span style="font-size:11px;color:var(--muted)">Cash cost: ${fmt(cCost)} &nbsp;·&nbsp; Best loan scenario (month ${bestM}): ${fmt(bestCost)} &nbsp;·&nbsp; Cash saves ${fmt(bestCost-cCost)} vs best loan month</span><br>
+      <span style="font-size:11px;color:#fbbf24">See the Cash Purchase card above. Optimal loan settlement shown below is month ${bestM}.</span>`;
   } else {
     ob.className='banner optimal';
     ob.innerHTML=`<div class="banner-title" style="color:#4ade80">Optimal settlement month</div>
@@ -368,89 +400,56 @@ function findOptimal(){
         :`<span style="color:var(--muted);font-size:11px;margin-left:8px">— total car cost: ${fmt(bestCost)}</span><br>
           <span style="font-size:11px;color:#4ade80">Saves ${fmt(saving)} vs full term (${fmt(fullC.totalCost)})</span>`}`;
   }
-  const targetRow=bestM===0?cashRow(p):_sched[bestM-1];
-  if(targetRow)renderScorecard(p,targetRow);
+  if(_sched[bestM-1])renderScorecard(p,_sched[bestM-1]);
   renderTable(p);
 }
 function recalc(){
-  const sm=parseInt($('settleMonth').value);
-  if(sm===0){
-    const savedP=getOrigParams();
-    if(!_isCashMode)enterCashMode();
-    _settleM=0;
-    _sched=buildSchedule(savedP.P,savedP.rate,savedP.n,savedP.type);
-    renderScorecard(savedP,cashRow(savedP));
-    renderTable(savedP);
-  } else {
-    if(_isCashMode)exitCashMode();
-    const p=getOrigParams();
-    _sched=buildSchedule(p.P,p.rate,p.n,p.type);
-    const clampedSm=Math.min(Math.max(1,sm),p.n);
-    $('settleMonth').value=clampedSm;
-    _settleM=clampedSm;
-    if(_sched[clampedSm-1])renderScorecard(p,_sched[clampedSm-1]);
-    renderTable(p);
-  }
+  const p=getParams();
+  _sched=buildSchedule(p.P,p.rate,p.n,p.type);
+  const sm=Math.min(Math.max(1,parseInt($('settleMonth').value)||p.n),p.n);
+  $('settleMonth').value=sm;
+  _settleM=sm;
+  if(_sched[sm-1])renderScorecard(p,_sched[sm-1]);
+  renderTable(p);
 }
 function renderScorecard(p,row){
   const c=calcSettle(row,p);
-  const ftRow=_sched.length>0?_sched[p.n-1]:{m:p.n,ci:parseFloat($('totalInt').value)||0,rp:0,grossRebate:0};
-  const fullC=calcSettle(ftRow,p);
-  const cashC=calcSettle(cashRow(p),p);
+  const fullC=calcSettle(_sched[p.n-1],p);
+  const cCost=cashCost(p);
   const saving=fullC.totalCost-c.totalCost;
-  const savingVsCash=c.totalCost-cashC.totalCost;
-  $('scorecardMonth').textContent=row.m===0?'0 — cash purchase':`${row.m}`;
+  const extraVsCash=c.totalCost-cCost;
+  $('scorecardMonth').textContent=row.m;
   $('scorecardCard').style.display='block';
   $('scorecard').innerHTML=`
-    <div class="metric"><div class="metric-label">Settle month</div><div class="metric-val ${row.m===0?'warn':'blue'}">${row.m===0?'0 — cash':row.m}</div></div>
+    <div class="metric"><div class="metric-label">Settle month</div><div class="metric-val blue">${row.m}</div></div>
     <div class="metric"><div class="metric-label">Cum. interest paid</div><div class="metric-val warn">${fmt(row.ci)}</div></div>
     <div class="metric"><div class="metric-label">Remaining principal</div><div class="metric-val warn">${fmt(row.rp)}</div></div>
     <div class="metric"><div class="metric-label">Gross interest rebate</div><div class="metric-val green">${fmt(c.grossRebate)}</div></div>
     <div class="metric"><div class="metric-label">Admin clawback (${p.adminPct}%)</div><div class="metric-val red">${fmt(c.adminAmt)}</div></div>
     <div class="metric"><div class="metric-label">Net rebate (${100-p.adminPct}%)</div><div class="metric-val green">${fmt(c.netRebate)}</div></div>
     <div class="metric"><div class="metric-label">Early settlement fee</div><div class="metric-val red">${fmt(c.esFee)}</div></div>
-    <div class="metric"><div class="metric-label">Finance clawback</div><div class="metric-val red">${fmt(c.cb)}</div></div>
+    <div class="metric"><div class="metric-label">FR clawback</div><div class="metric-val red">${fmt(c.cb)}</div></div>
     <div class="metric"><div class="metric-label">Total car cost</div><div class="metric-val">${fmt(c.totalCost)}</div></div>
     <div class="metric"><div class="metric-label">vs full term (${fmt(fullC.totalCost)})</div>
       <div class="metric-val ${saving>=0?'green':'red'}">${saving>=0?'saves ':'costs extra '}${fmt(Math.abs(saving))}</div></div>
-    <div class="metric"><div class="metric-label">extra vs cash (${fmt(cashC.totalCost)})</div>
-      <div class="metric-val ${savingVsCash<=0?'green':'warn'}">${savingVsCash<=0?'—':'+'+fmt(savingVsCash)}</div></div>
+    <div class="metric"><div class="metric-label">extra vs cash (${fmt(cCost)})</div>
+      <div class="metric-val ${extraVsCash<=0?'green':'warn'}">${extraVsCash<=0?'cash costs more':'+'+fmt(extraVsCash)}</div></div>
   `;
-  $('settleNote').textContent=row.m===0
-    ?'Cash purchase — no loan, no interest, no fees.'
-    :row.m===p.n
+  $('settleNote').textContent=row.m===p.n
     ?'Running to full term. No early settlement fees apply.'
     :_optimalM!==null&&row.m===_optimalM
-    ?`Month ${row.m} is the optimal settlement month.`
+    ?`Month ${row.m} is the optimal loan settlement month.`
     :_optimalM!==null
-    ?`Optimal is month ${_optimalM}. Month ${row.m} costs ${fmt(Math.abs(saving))} ${saving>=0?'less':'more'} than full term.`
+    ?`Optimal loan month is ${_optimalM}. Month ${row.m} costs ${fmt(Math.abs(saving))} ${saving>=0?'less':'more'} than full term.`
     :`Month ${row.m} costs ${fmt(Math.abs(saving))} ${saving>=0?'less':'more'} than full term.`;
 }
 function renderTable(p){
   $('tableCard').style.display='block';
   const tbody=$('tableBody');tbody.innerHTML='';
-  // month 0 row
-  const cr=cashRow(p),cc=calcSettle(cr,p);
-  const tr0=document.createElement('tr');
-  const isSettle0=_settleM===0,isOptimal0=_optimalM===0;
-  if(isSettle0&&isOptimal0)tr0.className='row-both';
-  else if(isSettle0)tr0.className='row-settle';
-  else if(isOptimal0)tr0.className='row-optimal';
-  else tr0.className='row-cash';
-  const totalRemInt=p.P>0?p.P*(p.rate/100)*(p.n/12):0;
-  tr0.innerHTML=`
-    <td>0${isSettle0&&isOptimal0?' ★':isSettle0?' ◆':isOptimal0?' ●':''} <span style="font-size:9px;opacity:.7">(cash)</span></td>
-    <td class="gs">—</td><td>—</td>
-    <td class="gs">${fmt(0)}</td><td>${fmt(0)}</td>
-    <td class="gs">${fmt(totalRemInt)}</td><td>${fmt(p.P)}</td>
-    <td class="gs">—</td><td>—</td><td>—</td><td>—</td>
-    <td>${fmt(cc.totalCost)}</td>
-  `;
-  tbody.appendChild(tr0);
   _sched.forEach(r=>{
     const c=calcSettle(r,p);
-    const isSettle=r.m===_settleM&&_settleM!==0;
-    const isOptimal=r.m===_optimalM&&_optimalM!==0;
+    const isSettle=r.m===_settleM;
+    const isOptimal=r.m===_optimalM;
     const tr=document.createElement('tr');
     if(isSettle&&isOptimal)tr.className='row-both';
     else if(isSettle)tr.className='row-settle';
@@ -465,22 +464,23 @@ function renderTable(p){
       <td style="color:${ft?'inherit':'#f87171'}">−${fmt(c.adminAmt)}</td>
       <td style="color:${ft?'inherit':'#4ade80'}">+${fmt(c.netRebate)}</td>
       <td style="color:${ft?'inherit':'#f87171'}">−${fmt(c.esFee)}</td>
+      <td style="color:${ft?'inherit':'#f87171'}">−${fmt(c.cb)}</td>
       <td>${fmt(c.totalCost)}</td>
     `;
     tbody.appendChild(tr);
   });
-  if(_settleM!==null){
+  if(_settleM){
     const rows=tbody.querySelectorAll('tr');
-    const idx=_settleM===0?0:_settleM;
-    const target=rows[idx];
+    const target=rows[_settleM-1];
     if(target)setTimeout(()=>target.scrollIntoView({block:'center',behavior:'smooth'}),100);
   }
 }
-$('carPrice').addEventListener('input',()=>{if(!_isCashMode){_savedCarPrice=parseFloat($('carPrice').value)||0;syncPrincipal();}});
-$('downPayment').addEventListener('input',()=>{if(!_isCashMode){_savedDp=parseFloat($('downPayment').value)||0;syncPrincipal();}});
+// event listeners
+$('carPrice').addEventListener('input',syncPrincipal);
+$('downPayment').addEventListener('input',syncPrincipal);
 ['rate','tenure','loanType'].forEach(id=>$(id).addEventListener('input',updateDerived));
-_savedCarPrice=parseFloat($('carPrice').value)||177888;
-_savedDp=parseFloat($('downPayment').value)||73955;
+$('clawback').addEventListener('change',updateCashCard);
+$('clawbackAmt').addEventListener('input',updateCashCard);
 syncPrincipal();
 </script>
 </body>
