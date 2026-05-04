@@ -264,9 +264,8 @@ function updateDerived(){
 }
 function updateCashCard(){
   const carPrice=parseFloat($('carPrice').value)||0;
-  const doClawback=$('clawback').checked;
   const rebateAmt=Math.max(0,parseFloat($('clawbackAmt').value)||0);
-  const cashRebate=doClawback?rebateAmt:0;
+  const cashRebate=rebateAmt; // always add back — rebate was never given if no loan taken
   const cashTotal=carPrice+cashRebate;
   $('cashCarPrice').textContent=fmt(carPrice);
   // show/hide rebate row
@@ -365,8 +364,9 @@ function calcSettle(row,p){
   return{grossRebate,adminAmt,netRebate,esFee,cb,totalCost};
 }
 function cashCost(p){
-  const rebate=p.doClawback?p.clawbackAmt:0;
-  return p.carPrice+rebate;
+  // always add back finance rebate for cash — rebate was never given since no loan taken
+  // this is independent of whether the clawback checkbox is ticked (that only affects loan scenarios)
+  return p.carPrice+p.clawbackAmt;
 }
 function fmt(v){return'$'+Math.round(v).toLocaleString('en-SG')}
 function findOptimal(){
