@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SG Car Loan Settlement Calculator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0f1117;--surface:#181c27;--surface2:#1e2335;--border:#2a3050;
+  --accent:#4ade80;--accent2:#60a5fa;--warn:#fbbf24;--danger:#f87171;
+  --text:#e8eaf0;--muted:#6b7a99;--mono:'IBM Plex Mono',monospace;--sans:'IBM Plex Sans',sans-serif;
+}
+body{font-family:var(--sans);background:var(--bg);color:var(--text);font-size:13px;line-height:1.5;min-height:100vh}
+.wrap{max-width:1200px;margin:0 auto;padding:2rem 1.5rem 4rem}
+h1{font-family:var(--mono);font-size:16px;font-weight:500;letter-spacing:.05em;color:var(--accent);margin-bottom:.4rem;padding-bottom:.75rem;border-bottom:1px solid var(--border)}
+.subtitle{font-size:11px;color:var(--muted);margin-bottom:1.5rem;font-family:var(--mono);padding-top:.4rem}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:.75rem}
+@media(max-width:640px){.grid2{grid-template-columns:1fr}}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:8px;padding:1rem}
+.card-title{font-family:var(--mono);font-size:10px;font-weight:500;letter-spacing:.1em;color:var(--muted);text-transform:uppercase;margin-bottom:.75rem}
+label{display:block;font-size:11px;color:var(--muted);margin-bottom:4px;margin-top:.6rem}
+label:first-of-type{margin-top:0}
+input[type=number],select{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:4px;padding:6px 8px;color:var(--text);font-family:var(--mono);font-size:12px;outline:none;transition:border-color .15s}
+input[type=number]:focus,select:focus{border-color:var(--accent2)}
+input[readonly]{opacity:.7;cursor:default}
+select option{background:var(--surface2)}
+.check-row{display:flex;align-items:center;gap:8px;margin-top:.5rem}
+.check-row input[type=checkbox]{width:14px;height:14px;accent-color:var(--accent);cursor:pointer}
+.check-row span{font-size:12px;color:var(--text)}
+.radio-row{display:flex;gap:1rem;margin-top:.4rem;flex-wrap:wrap}
+.radio-row label{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--text);margin:0;cursor:pointer}
+.radio-row input[type=radio]{accent-color:var(--accent2)}
+.scorecard{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:.6rem;margin:.75rem 0}
+.metric{background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:.75rem}
+.metric-label{font-size:10px;color:var(--muted);font-family:var(--mono);letter-spacing:.05em;text-transform:uppercase;line-height:1.4}
+.metric-val{font-family:var(--mono);font-size:14px;font-weight:500;margin-top:3px}
+.green{color:#4ade80}.blue{color:#60a5fa}.warn{color:#fbbf24}.red{color:#f87171}
+.banner{border-radius:8px;padding:.75rem 1rem;margin:.75rem 0;font-family:var(--mono);font-size:12px}
+.banner.optimal{background:rgba(74,222,128,.07);border:1px solid rgba(74,222,128,.25)}
+.banner-title{font-size:10px;font-weight:500;letter-spacing:.08em;text-transform:uppercase;margin-bottom:4px}
+.btn-row{display:flex;gap:.6rem;margin-top:.75rem;flex-wrap:wrap;align-items:center}
+.btn{background:transparent;border:1px solid;font-family:var(--mono);font-size:11px;padding:7px 16px;border-radius:4px;cursor:pointer;letter-spacing:.05em;transition:background .15s}
+.btn-green{border-color:#4ade80;color:#4ade80}.btn-green:hover{background:rgba(74,222,128,.1)}
+.btn-blue{border-color:#60a5fa;color:#60a5fa}.btn-blue:hover{background:rgba(96,165,250,.1)}
+.settle-row{display:flex;align-items:center;gap:10px;margin-top:.5rem;flex-wrap:wrap}
+.settle-row label{margin:0;white-space:nowrap;font-size:11px;color:var(--muted)}
+.settle-row input{width:80px}
+.section-gap{margin-top:.75rem}
+.divider{border:none;border-top:1px solid var(--border);margin:1rem 0}
+.table-wrap{overflow-x:auto;margin-top:.5rem;border:1px solid var(--border);border-radius:8px;max-height:500px;overflow-y:auto}
+table{width:100%;border-collapse:collapse;font-family:var(--mono);font-size:11px;min-width:1050px}
+thead{position:sticky;top:0;z-index:2}
+th{background:#1a1f30;color:var(--muted);font-weight:500;padding:7px 8px;text-align:right;border-bottom:1px solid var(--border);font-size:10px;text-transform:uppercase;white-space:nowrap;letter-spacing:.03em}
+th:first-child{text-align:left}
+th.grp{text-align:center;border-left:1px solid var(--border);color:#60a5fa;font-size:9px}
+td{padding:6px 8px;text-align:right;border-bottom:1px solid rgba(42,48,80,.4);color:var(--text)}
+td:first-child{text-align:left;color:var(--muted)}
+td.gs{border-left:1px solid rgba(42,48,80,.6)}
+tr:nth-child(even) td{background:rgba(30,35,53,.35)}
+tr.row-settle td{background:rgba(74,222,128,.1)!important;color:#4ade80!important;font-weight:500}
+tr.row-optimal td{background:rgba(96,165,250,.1)!important;color:#60a5fa!important;font-weight:500}
+tr.row-both td{background:rgba(251,191,36,.1)!important;color:#fbbf24!important;font-weight:500}
+.legend{display:flex;gap:1.25rem;margin-bottom:.5rem;flex-wrap:wrap}
+.legend-item{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--muted)}
+.dot{width:10px;height:10px;border-radius:2px}
+.dot-g{background:rgba(74,222,128,.4)}.dot-b{background:rgba(96,165,250,.4)}.dot-w{background:rgba(251,191,36,.4)}
+.note{font-size:11px;color:var(--muted);line-height:1.6;margin-top:.5rem}
+.fbox{background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:.75rem 1rem;font-family:var(--mono);font-size:11px;color:var(--muted);margin-top:.5rem;line-height:2}
+.fbox span{color:var(--text)}
+.sn{background:var(--surface2);border:1px solid var(--border);border-radius:4px;padding:.5rem .75rem;font-size:11px;color:var(--muted);margin-top:.4rem;line-height:1.6}
+.derived{color:#60a5fa!important}
+.tag{display:inline-block;font-size:9px;padding:1px 6px;border-radius:3px;margin-left:4px;font-family:var(--mono);vertical-align:middle;background:rgba(74,222,128,.15);color:#4ade80;border:1px solid rgba(74,222,128,.3)}
+.footer{margin-top:2rem;padding-top:1rem;border-top:1px solid var(--border);font-size:11px;color:var(--muted);font-family:var(--mono);text-align:center;line-height:1.8}
+</style>
+</head>
+<body>
+<div class="wrap">
+<h1>// SG CAR LOAN SETTLEMENT CALCULATOR <span class="tag">SG PRACTICE</span></h1>
+<p class="subtitle">Singapore hire-purchase · Rule of 78 · 20% admin clawback on interest rebate · 1–1.5% early settlement fee</p>
+
+<div class="grid2">
+  <div class="card">
+    <div class="card-title">Loan Parameters</div>
+    <label>Car price (after all discounts) $</label>
+    <input type="number" id="carPrice" value="177888" step="100">
+    <label>Down payment $</label>
+    <input type="number" id="downPayment" value="73955" step="100">
+    <label>Loan principal $ <span style="color:#60a5fa;font-size:10px">(auto-calculated)</span></label>
+    <input type="number" id="principal" readonly class="derived">
+    <label>Annual flat interest rate %</label>
+    <input type="number" id="rate" value="2.28" step="0.01" min="0">
+    <label>Loan tenure (months)</label>
+    <input type="number" id="tenure" value="84" step="1" min="1" max="120">
+    <label style="color:#60a5fa">Monthly instalment $ <span style="font-size:10px">(calculated)</span></label>
+    <input type="number" id="instalment" readonly class="derived">
+    <label style="color:#60a5fa">Total interest $ <span style="font-size:10px">(calculated)</span></label>
+    <input type="number" id="totalInt" readonly class="derived">
+  </div>
+
+  <div class="card">
+    <div class="card-title">Early Settlement Conditions <span class="tag">SG standard</span></div>
+    <label>Loan structure</label>
+    <select id="loanType">
+      <option value="rule78">Rule of 78 (SG hire-purchase standard)</option>
+      <option value="flat">Flat rate — pro-rata rebate</option>
+      <option value="reducing">Reducing balance (EIR)</option>
+    </select>
+    <div class="sn" id="structNote"></div>
+    <label style="margin-top:.85rem">Admin clawback on interest rebate % <span style="color:#60a5fa;font-size:10px">(SG standard: 20%)</span></label>
+    <input type="number" id="adminClawback" value="20" step="1" min="0" max="100">
+    <label>Early settlement fee % <span style="color:#60a5fa;font-size:10px">(SG standard: 1–1.5%)</span></label>
+    <input type="number" id="esFee" value="1.5" step="0.1" min="0" max="10">
+    <label>Early settlement fee applied to</label>
+    <div class="radio-row">
+      <label><input type="radio" name="feeBase" value="original" checked> Original loan amount</label>
+      <label><input type="radio" name="feeBase" value="remaining"> Remaining principal</label>
+    </div>
+    <div class="check-row" style="margin-top:.85rem">
+      <input type="checkbox" id="clawback" checked>
+      <span>Finance rebate clawed back if settled early</span>
+    </div>
+    <label>Finance rebate clawback amount $</label>
+    <input type="number" id="clawbackAmt" value="5000" step="100">
+  </div>
+</div>
+
+<div class="card section-gap">
+  <div class="card-title">How SG early settlement works</div>
+  <div class="fbox">
+    <span>Step 1 — Gross interest rebate</span> = remaining interest via Rule of 78 tail weights<br>
+    <span>Step 2 — Admin clawback</span> = gross interest rebate × admin clawback % &nbsp;(bank keeps this)<br>
+    <span>Step 3 — Net interest rebate</span> = gross interest rebate × (1 − admin clawback %)<br>
+    <span>Step 4 — Early settlement fee</span> = fee % × original loan amount (or remaining principal)<br>
+    <span>Step 5 — Settlement payoff</span> = remaining principal + admin clawback amount + early settlement fee + finance clawback<br>
+    <span>Total car cost</span> = down payment + cumulative instalments paid + settlement payoff<br>
+    <span style="color:var(--muted)">            = down payment + loan principal + cumulative interest paid + admin clawback + ES fee + finance clawback</span>
+  </div>
+</div>
+
+<div class="card section-gap">
+  <div class="card-title">Find optimal &amp; set settlement month</div>
+  <div class="btn-row">
+    <button class="btn btn-green" onclick="findOptimal()">Find optimal settlement month ↗</button>
+  </div>
+  <div id="optimalBanner" class="banner optimal" style="display:none"></div>
+  <hr class="divider">
+  <div class="settle-row">
+    <label>Settle at end of month:</label>
+    <input type="number" id="settleMonth" value="84" min="1">
+    <button class="btn btn-blue" onclick="recalc()">Recalculate ↗</button>
+  </div>
+  <p class="note" id="settleNote" style="margin-top:.5rem"></p>
+</div>
+
+<div class="card section-gap" id="scorecardCard" style="display:none">
+  <div class="card-title">Settlement scorecard — month <span id="scorecardMonth"></span></div>
+  <div class="scorecard" id="scorecard"></div>
+</div>
+
+<div class="card section-gap" id="tableCard" style="display:none">
+  <div class="card-title">Monthly breakdown</div>
+  <div class="legend">
+    <div class="legend-item"><div class="dot dot-g"></div>Selected settlement month (◆)</div>
+    <div class="legend-item"><div class="dot dot-b"></div>Optimal month (●)</div>
+    <div class="legend-item"><div class="dot dot-w"></div>Both coincide (★)</div>
+  </div>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th rowspan="2">Mth</th>
+          <th colspan="2" class="grp">— instalment —</th>
+          <th colspan="2" class="grp">— cumulative —</th>
+          <th colspan="2" class="grp">— remaining —</th>
+          <th colspan="5" class="grp">— if settle this month —</th>
+        </tr>
+        <tr>
+          <th class="gs">Interest</th><th>Principal</th>
+          <th class="gs">Cum. interest</th><th>Cum. principal</th>
+          <th class="gs">Rem. interest</th><th>Rem. principal</th>
+          <th class="gs">Gross rebate</th><th>Admin clawback</th><th>Net rebate</th><th>ES fee</th><th>Total car cost</th>
+        </tr>
+      </thead>
+      <tbody id="tableBody"></tbody>
+    </table>
+  </div>
+  <p class="note">Settlement payoff = remaining principal + admin clawback amount + ES fee + finance clawback. Total car cost = down payment + cumulative instalments paid + settlement payoff. At full term all settlement costs are zero.</p>
+</div>
+
+<div class="footer">
+  For illustrative purposes only. Actual terms vary by bank — always verify with your financier before making decisions.<br>
+  Built with <a href="https://claude.ai" style="color:#60a5fa;text-decoration:none">Claude</a> by Anthropic
+</div>
+</div>
+
+<script>
+const $=id=>document.getElementById(id);
+let _sched=[],_optimalM=null,_settleM=null;
+
+function syncPrincipal(){
+  const p=Math.max(0,(parseFloat($('carPrice').value)||0)-(parseFloat($('downPayment').value)||0));
+  $('principal').value=p; updateDerived();
+}
+function updateDerived(){
+  const P=parseFloat($('principal').value)||0,r=parseFloat($('rate').value)||0,
+        n=parseInt($('tenure').value)||84,type=$('loanType').value;
+  const notes={
+    rule78:"SG standard. Interest front-loaded using (n−m+1)/S weights. Gross rebate = remaining tail-weight interest. Bank claws back admin % of gross rebate.",
+    flat:"Interest spread equally each month. Gross rebate = remaining months / total months × total interest. Admin clawback still applies.",
+    reducing:"Interest accrues on outstanding balance monthly (EIR). No pre-calculated interest pool — payoff is remaining principal only. Rebate and admin clawback do not apply."
+  };
+  $('structNote').textContent=notes[type];
+  if(type==='reducing'){
+    const eir=approxEIR(r,n);
+    const inst=eir===0?P/n:P*eir*Math.pow(1+eir,n)/(Math.pow(1+eir,n)-1);
+    $('instalment').value=inst.toFixed(2);
+    $('totalInt').value=Math.max(0,inst*n-P).toFixed(2);
+  } else {
+    const ti=P*(r/100)*(n/12),inst=(P+ti)/n;
+    $('instalment').value=inst.toFixed(2);
+    $('totalInt').value=ti.toFixed(2);
+  }
+}
+function approxEIR(fr,n){
+  if(fr===0)return 0;
+  let r=(fr/100)/12*2;
+  const P=100000,ti=P*(fr/100)*(n/12),inst=(P+ti)/n;
+  for(let i=0;i<300;i++){
+    const pw=Math.pow(1+r,n),f=r*pw/(pw-1)-inst/P,
+          df=(pw*(1+r*(1-n)+r*n))/(r*(pw-1)*(pw-1)),nr=r-f/df;
+    if(Math.abs(nr-r)<1e-12)break; r=Math.max(1e-10,nr);
+  }
+  return r;
+}
+function buildSchedule(P,fr,n,type){
+  const rows=[];
+  if(type==='reducing'){
+    const eir=approxEIR(fr,n),inst=eir===0?P/n:P*eir*Math.pow(1+eir,n)/(Math.pow(1+eir,n)-1);
+    let rp=P,ci=0,cp=0;
+    for(let m=1;m<=n;m++){
+      const ia=rp*eir,pa=inst-ia;
+      rp=Math.max(0,rp-pa); ci+=ia; cp+=pa;
+      const ri=Math.max(0,inst*(n-m)-rp);
+      rows.push({m,ia,pa,ci,cp,rp,ri,grossRebate:0});
+    }
+  } else {
+    const ti=P*(fr/100)*(n/12),inst=(P+ti)/n,S=n*(n+1)/2;
+    let rp=P,ci=0,cp=0;
+    for(let m=1;m<=n;m++){
+      const ia=type==='rule78'?ti*(n-m+1)/S:ti/n,pa=inst-ia;
+      rp=Math.max(0,rp-pa); ci+=ia; cp+=pa;
+      const remM=n-m;
+      const grossRebate=Math.max(0,type==='rule78'?ti*(remM*(remM+1)/2)/S:ti*remM/n);
+      const ri=Math.max(0,ti-ci);
+      rows.push({m,ia,pa,ci,cp,rp,ri,grossRebate});
+    }
+  }
+  return rows;
+}
+function getParams(){
+  const feeBase=document.querySelector('input[name=feeBase]:checked');
+  return{
+    P:parseFloat($('principal').value)||0,
+    dp:parseFloat($('downPayment').value)||0,
+    rate:parseFloat($('rate').value)||0,
+    n:parseInt($('tenure').value)||84,
+    type:$('loanType').value,
+    adminPct:parseFloat($('adminClawback').value)||20,
+    esFeeP:parseFloat($('esFee').value)||1.5,
+    feeBase:feeBase?feeBase.value:'original',
+    doClawback:$('clawback').checked,
+    clawbackAmt:parseFloat($('clawbackAmt').value)||0
+  };
+}
+function calcSettle(row,p){
+  const isFullTerm=row.m===p.n;
+  if(isFullTerm) return{grossRebate:0,adminAmt:0,netRebate:0,esFee:0,cb:0,totalCost:p.dp+p.P+row.ci};
+  const grossRebate=row.grossRebate||0;
+  const adminAmt=grossRebate*(p.adminPct/100);
+  const netRebate=grossRebate-adminAmt;
+  const esFeeBase=p.feeBase==='original'?p.P:row.rp;
+  const esFee=esFeeBase*(p.esFeeP/100);
+  const cb=p.doClawback?p.clawbackAmt:0;
+  // total car cost = dp + P + cumInterest + adminAmt + esFee + cb
+  const totalCost=p.dp+p.P+row.ci+adminAmt+esFee+cb;
+  return{grossRebate,adminAmt,netRebate,esFee,cb,totalCost};
+}
+function fmt(v){return'$'+Math.round(v).toLocaleString('en-SG')}
+function findOptimal(){
+  const p=getParams(); _sched=buildSchedule(p.P,p.rate,p.n,p.type);
+  let bestM=p.n,bestCost=Infinity;
+  _sched.forEach(r=>{const c=calcSettle(r,p);if(c.totalCost<bestCost){bestCost=c.totalCost;bestM=r.m;}});
+  _optimalM=bestM; $('settleMonth').value=bestM; _settleM=bestM;
+  const fullC=calcSettle(_sched[p.n-1],p),saving=fullC.totalCost-bestCost;
+  const ob=$('optimalBanner'); ob.style.display='block';
+  ob.innerHTML=`<div class="banner-title" style="color:#4ade80">Optimal settlement month</div>
+    <span style="font-size:15px;color:#4ade80;font-weight:500">Month ${bestM}</span>
+    ${bestM===p.n
+      ?`<span style="color:var(--muted);font-size:11px;margin-left:8px">— full term is already optimal.</span>`
+      :`<span style="color:var(--muted);font-size:11px;margin-left:8px">— total car cost: ${fmt(bestCost)}</span><br>
+        <span style="font-size:11px;color:#4ade80">Saves ${fmt(saving)} vs full term (${fmt(fullC.totalCost)})</span>`}`;
+  renderScorecard(p,_sched[bestM-1]); renderTable(p);
+}
+function recalc(){
+  const p=getParams(); _sched=buildSchedule(p.P,p.rate,p.n,p.type);
+  const sm=Math.min(Math.max(1,parseInt($('settleMonth').value)||p.n),p.n);
+  _settleM=sm; renderScorecard(p,_sched[sm-1]); renderTable(p);
+}
+function renderScorecard(p,row){
+  const c=calcSettle(row,p),fullC=calcSettle(_sched[p.n-1],p),saving=fullC.totalCost-c.totalCost;
+  $('scorecardMonth').textContent=row.m; $('scorecardCard').style.display='block';
+  $('scorecard').innerHTML=`
+    <div class="metric"><div class="metric-label">Settle month</div><div class="metric-val blue">${row.m}</div></div>
+    <div class="metric"><div class="metric-label">Cum. interest paid</div><div class="metric-val warn">${fmt(row.ci)}</div></div>
+    <div class="metric"><div class="metric-label">Remaining principal</div><div class="metric-val warn">${fmt(row.rp)}</div></div>
+    <div class="metric"><div class="metric-label">Gross interest rebate</div><div class="metric-val green">${fmt(c.grossRebate)}</div></div>
+    <div class="metric"><div class="metric-label">Admin clawback (${p.adminPct}%)</div><div class="metric-val red">${fmt(c.adminAmt)}</div></div>
+    <div class="metric"><div class="metric-label">Net rebate (${100-p.adminPct}%)</div><div class="metric-val green">${fmt(c.netRebate)}</div></div>
+    <div class="metric"><div class="metric-label">Early settlement fee</div><div class="metric-val red">${fmt(c.esFee)}</div></div>
+    <div class="metric"><div class="metric-label">Finance clawback</div><div class="metric-val red">${fmt(c.cb)}</div></div>
+    <div class="metric"><div class="metric-label">Total car cost</div><div class="metric-val">${fmt(c.totalCost)}</div></div>
+    <div class="metric"><div class="metric-label">vs full term (${fmt(fullC.totalCost)})</div>
+      <div class="metric-val ${saving>=0?'green':'red'}">${saving>=0?'saves ':'costs extra '}${fmt(Math.abs(saving))}</div></div>
+  `;
+  $('settleNote').textContent=row.m===p.n
+    ?'Running to full term. No early settlement fees apply.'
+    :_optimalM&&row.m===_optimalM
+    ?`Month ${row.m} is the optimal settlement month.`
+    :_optimalM
+    ?`Optimal is month ${_optimalM}. Month ${row.m} costs ${fmt(Math.abs(saving))} ${saving>=0?'less':'more'} than full term.`
+    :`Month ${row.m} costs ${fmt(Math.abs(saving))} ${saving>=0?'less':'more'} than full term.`;
+}
+function renderTable(p){
+  $('tableCard').style.display='block';
+  const tbody=$('tableBody'); tbody.innerHTML='';
+  _sched.forEach(r=>{
+    const c=calcSettle(r,p),isSettle=r.m===_settleM,isOptimal=r.m===_optimalM;
+    const tr=document.createElement('tr');
+    if(isSettle&&isOptimal)tr.className='row-both';
+    else if(isSettle)tr.className='row-settle';
+    else if(isOptimal)tr.className='row-optimal';
+    const ft=r.m===p.n;
+    tr.innerHTML=`
+      <td>${r.m}${isSettle&&isOptimal?' ★':isSettle?' ◆':isOptimal?' ●':''}</td>
+      <td class="gs">${fmt(r.ia)}</td><td>${fmt(r.pa)}</td>
+      <td class="gs">${fmt(r.ci)}</td><td>${fmt(r.cp)}</td>
+      <td class="gs">${fmt(r.ri)}</td><td>${fmt(r.rp)}</td>
+      <td class="gs">${fmt(c.grossRebate)}</td>
+      <td style="color:${ft?'inherit':'#f87171'}">−${fmt(c.adminAmt)}</td>
+      <td style="color:${ft?'inherit':'#4ade80'}">+${fmt(c.netRebate)}</td>
+      <td style="color:${ft?'inherit':'#f87171'}">−${fmt(c.esFee)}</td>
+      <td>${fmt(c.totalCost)}</td>
+    `;
+    tbody.appendChild(tr);
+  });
+  if(_settleM){
+    const rows=tbody.querySelectorAll('tr'),target=rows[_settleM-1];
+    if(target)setTimeout(()=>target.scrollIntoView({block:'center',behavior:'smooth'}),100);
+  }
+}
+$('carPrice').addEventListener('input',syncPrincipal);
+$('downPayment').addEventListener('input',syncPrincipal);
+['rate','tenure','loanType'].forEach(id=>$(id).addEventListener('input',updateDerived));
+syncPrincipal();
+</script>
+</body>
+</html>
