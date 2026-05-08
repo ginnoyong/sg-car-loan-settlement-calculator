@@ -143,7 +143,7 @@ tr.row-both td{background:rgba(251,191,36,.1)!important;color:#fbbf24!important;
   </div>
 </div>
 
-<!-- Cash Purchase Card — always visible -->
+<!-- Cash Purchase Card -->
 <div class="card cash-card section-gap">
   <div class="card-title cash">Cash purchase scenario <span style="font-size:9px;color:var(--muted);text-transform:none;letter-spacing:0">(no loan taken)</span></div>
   <div class="cash-row">
@@ -234,15 +234,21 @@ tr.row-both td{background:rgba(251,191,36,.1)!important;color:#fbbf24!important;
 const $=id=>document.getElementById(id);
 let _sched=[],_optimalM=null,_settleM=null;
 
+// Safe parse — returns 0 if NaN, never falls back to a non-zero default
+function safeNum(id){
+  const v=parseFloat($(id).value);
+  return isNaN(v)?0:v;
+}
+
 function syncPrincipal(){
-  const price=parseFloat($('carPrice').value)||0;
-  const dp=parseFloat($('downPayment').value)||0;
+  const price=safeNum('carPrice');
+  const dp=safeNum('downPayment');
   $('principal').value=Math.max(0,price-dp);
   updateDerived();
   updateCashCard();
 }
 function updateDerived(){
-  const P=parseFloat($('principal').value)||0,r=parseFloat($('rate').value)||0,
+  const P=safeNum('principal'),r=safeNum('rate'),
         n=parseInt($('tenure').value)||84,type=$('loanType').value;
   const notes={
     rule78:"SG standard. Interest front-loaded using (n−m+1)/S weights. Gross rebate = remaining tail-weight interest. Bank claws back admin % of gross rebate.",
@@ -263,12 +269,12 @@ function updateDerived(){
   }
 }
 function updateCashCard(){
-  const carPrice=parseFloat($('carPrice').value)||0;
-  const rebateAmt=Math.max(0,parseFloat($('clawbackAmt').value)||0);
-  const cashRebate=rebateAmt; // always add back — rebate was never given if no loan taken
+  const carPrice=safeNum('carPrice');
+  const rebateAmt=Math.max(0,safeNum('clawbackAmt'));
+  // always add back finance rebate for cash — independent of clawback checkbox
+  const cashRebate=rebateAmt;
   const cashTotal=carPrice+cashRebate;
   $('cashCarPrice').textContent=fmt(carPrice);
-  // show/hide rebate row
   const rebateRow=$('cashRebateRow');
   if(cashRebate>0){
     rebateRow.style.display='flex';
@@ -277,10 +283,9 @@ function updateCashCard(){
     rebateRow.style.display='none';
   }
   $('cashTotal').textContent=fmt(cashTotal);
-  // vs full term comparison
-  const P=parseFloat($('principal').value)||0;
-  const dp=parseFloat($('downPayment').value)||0;
-  const ti=parseFloat($('totalInt').value)||0;
+  const P=safeNum('principal');
+  const dp=safeNum('downPayment');
+  const ti=safeNum('totalInt');
   const fullTermCost=dp+P+ti;
   const diff=cashTotal-fullTermCost;
   const cashVsEl=$('cashVs');
@@ -335,18 +340,21 @@ function buildSchedule(P,fr,n,type){
 }
 function getParams(){
   const fb=document.querySelector('input[name=feeBase]:checked');
+  // FIX: use safeNum for all fields — prevents || fallback treating 0 as falsy
+  const adminPct=safeNum('adminClawback');
+  const esFeeP=safeNum('esFee');
   return{
-    P:parseFloat($('principal').value)||0,
-    dp:parseFloat($('downPayment').value)||0,
-    carPrice:parseFloat($('carPrice').value)||0,
-    rate:parseFloat($('rate').value)||0,
+    P:safeNum('principal'),
+    dp:safeNum('downPayment'),
+    carPrice:safeNum('carPrice'),
+    rate:safeNum('rate'),
     n:parseInt($('tenure').value)||84,
     type:$('loanType').value,
-    adminPct:parseFloat($('adminClawback').value)||20,
-    esFeeP:parseFloat($('esFee').value)||1.5,
+    adminPct,
+    esFeeP,
     feeBase:fb?fb.value:'remaining',
     doClawback:$('clawback').checked,
-    clawbackAmt:Math.max(0,parseFloat($('clawbackAmt').value)||0)
+    clawbackAmt:Math.max(0,safeNum('clawbackAmt'))
   };
 }
 function calcSettle(row,p){
@@ -364,20 +372,15 @@ function calcSettle(row,p){
   return{grossRebate,adminAmt,netRebate,esFee,cb,totalCost};
 }
 function cashCost(p){
-  // always add back finance rebate for cash — rebate was never given since no loan taken
-  // this is independent of whether the clawback checkbox is ticked (that only affects loan scenarios)
+  // always add back finance rebate — independent of clawback checkbox
   return p.carPrice+p.clawbackAmt;
 }
 function fmt(v){return'$'+Math.round(v).toLocaleString('en-SG')}
 function findOptimal(){
   const p=getParams();
   _sched=buildSchedule(p.P,p.rate,p.n,p.type);
-  // find optimal among loan months only
   let bestM=p.n,bestCost=Infinity;
-  _sched.forEach(r=>{
-    const c=calcSettle(r,p);
-    if(c.totalCost<bestCost){bestCost=c.totalCost;bestM=r.m;}
-  });
+  _sched.forEach(r=>{const c=calcSettle(r,p);if(c.totalCost<bestCost){bestCost=c.totalCost;bestM=r.m;}});
   _optimalM=bestM;
   $('settleMonth').value=bestM;
   _settleM=bestM;
@@ -385,7 +388,6 @@ function findOptimal(){
   const cCost=cashCost(p);
   const saving=fullC.totalCost-bestCost;
   const ob=$('optimalBanner');ob.style.display='block';
-  // check if cash is even better
   if(cCost<bestCost){
     ob.className='banner cash-opt';
     ob.innerHTML=`<div class="banner-title" style="color:#fbbf24">Note: cash purchase is cheaper than any loan scenario</div>
@@ -475,7 +477,6 @@ function renderTable(p){
     if(target)setTimeout(()=>target.scrollIntoView({block:'center',behavior:'smooth'}),100);
   }
 }
-// event listeners
 $('carPrice').addEventListener('input',syncPrincipal);
 $('downPayment').addEventListener('input',syncPrincipal);
 ['rate','tenure','loanType'].forEach(id=>$(id).addEventListener('input',updateDerived));
